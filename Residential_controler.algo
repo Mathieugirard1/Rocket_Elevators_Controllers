@@ -8,6 +8,20 @@ The residential building has:
 -level button(1 for each elevator)
 "
 
+DEFINE #Floor 
+N1 = floor1
+N2 = floor2
+N3 = floor3
+N4 = floor4
+N5 = floor5
+N6 = floor6
+N7 = floor7
+N8 = floor8
+N9 = floor9
+N10 = floor10
+ENDDEFINE
+
+"column"
 DEFINE Column USING id AND status:
     ID: A,
     Status: status,
@@ -16,18 +30,14 @@ DEFINE Column USING id AND status:
     SEQUENCE createElevatorList USING elevator_amount
         [A1]
         [A2]
-        [A3]
     ENDSEQUENCE
 ENDDEFINE
 SET column1 TO INSTANTIATE Column WITH 1 AND online
 SET column1 status TO offline
 
-
-
-
+"doors"
 door_close = true
 door_open = false
-
 sequence doors
 when BestElevator at floor (selected)
     then door_open = true door_close = false
@@ -35,14 +45,16 @@ when BestElevator at floor (selected)
     then Door_open = false Door_open = true
 endsequence
 
+"callElevator"
 Sequence requestElevator Using floor And direction
- IF button up is pressed
-    send #floor and direction
-    closestElevator going up is called 
+    IF button up is pressed
+        obtain #floor and direction
+        closestElevator going up is called 
 
-    ELSE IF button down is pressed
-    send #floor and direction
-    closestElevator going down is called
+        ELSE IF button down is pressed
+        obtain #floor and direction
+        closestElevator going down is called
+    endif
 endsequence
 
 SET destination_floor TO READ the button pressed
@@ -52,4 +64,11 @@ WHEN cage1 is at #floor
 print #floor
 WHEN cage2 is at #floor
 print #floor
+endsequence
+
+"floor request button"
+sequence
+if #floor is pressed
+send elevator to #floor.value
+endif
 endsequence
