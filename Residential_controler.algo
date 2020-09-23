@@ -1,0 +1,55 @@
+"(situation)
+The residential building has:
+-1 column
+-2 elevator cages
+-10 floors excluding the basements
+-button pannel(1 per floor)
+-doors(2 sets per floor)
+-level button(1 for each elevator)
+"
+
+DEFINE Column USING id AND status:
+    ID: A,
+    Status: status,
+    ElevatorList: SET to empty List
+
+    SEQUENCE createElevatorList USING elevator_amount
+        [A1]
+        [A2]
+        [A3]
+    ENDSEQUENCE
+ENDDEFINE
+SET column1 TO INSTANTIATE Column WITH 1 AND online
+SET column1 status TO offline
+
+
+
+
+door_close = true
+door_open = false
+
+sequence doors
+when BestElevator at floor (selected)
+    then door_open = true door_close = false
+    wait 7 seconds
+    then Door_open = false Door_open = true
+endsequence
+
+Sequence requestElevator Using floor And direction
+ IF button up is pressed
+    send #floor and direction
+    closestElevator going up is called 
+
+    ELSE IF button down is pressed
+    send #floor and direction
+    closestElevator going down is called
+endsequence
+
+SET destination_floor TO READ the button pressed
+
+sequence elevator_status
+WHEN cage1 is at #floor
+print #floor
+WHEN cage2 is at #floor
+print #floor
+endsequence
