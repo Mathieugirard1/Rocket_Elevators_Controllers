@@ -45,6 +45,16 @@ when BestElevator at floor (selected)
     then Door_open = false Door_open = true
 endsequence
 
+sequence doorclose
+when Bestelevator at floor (selected)
+    then door_close = true door_open = false
+endsequence
+
+sequence dooropen
+when Bestelevator at floor (selected)
+    then door_open = true door_close = false
+endsequence
+
 "callElevator"
 Sequence requestElevator Using floor And direction
     IF button up is pressed
@@ -55,6 +65,11 @@ Sequence requestElevator Using floor And direction
         obtain #floor and direction
         closestElevator going down is called
     endif
+endsequence
+
+sequence closestElevator using #floor and direction
+    closestElevator = #floor and up or down
+
 endsequence
 
 SET destination_floor TO READ the button pressed
@@ -69,6 +84,6 @@ endsequence
 "floor request button"
 sequence
 if #floor is pressed
-send elevator to #floor.value
+send elevator to #floor.value USING closestElevator
 endif
 endsequence

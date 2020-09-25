@@ -1,0 +1,305 @@
+"Situation
+60 floors
+6 basements
+4 columns
+each column = 3 elevators
+"
+
+"basement elevator"
+define #basement
+    b1 = basement1
+    b2 = basement2
+    b3 = basement3
+    b4 = basement4
+    b5 = basement5
+    b6 = basement6
+ENDDEFINE
+
+"1st column"
+DEFINE #Floor 1
+    N0 = floor0
+    N1 = floor1
+    N2 = floor2
+    N3 = floor3
+    N4 = floor4
+    N5 = floor5
+    N6 = floor6
+    N7 = floor7
+    N8 = floor8
+    N9 = floor9
+    N10 = floor10
+    N11 = floor11
+    N12 = floor12
+    N13 = floor13
+    N14 = floor14
+    N15 = floor15
+    N16 = floor16
+    N17 = floor17
+    N18 = floor18
+    N19 = floor19
+    N20 = floor20
+    ENDDEFINE
+
+"2nd column"
+DEFINE #Floor 2
+    N0 = floor0
+    N21 = floor21
+    N22 = floor22
+    N23 = floor23
+    N24 = floor24
+    N25 = floor25
+    N26 = floor26
+    N27 = floor27
+    N28 = floor28
+    N29 = floor29
+    N30 = floor30
+    N31 = floor31
+    N32 = floor32
+    N33 = floor33
+    N34 = floor34
+    N35 = floor35
+    N36 = floor36
+    N37 = floor37
+    N38 = floor38
+    N39 = floor39
+    N40 = floor40
+ENDDEFINE
+
+"3rd column"
+DEFINE #Floor 3
+    N0 = floor0
+    N41 = floor41
+    N42 = floor42
+    N43 = floor43
+    N44 = floor44
+    N45 = floor45
+    N46 = floor46
+    N47 = floor47
+    N48 = floor48
+    N49 = floor49
+    N50 = floor50
+    N51 = floor51
+    N52 = floor52
+    N53 = floor53
+    N54 = floor54
+    N55 = floor55
+    N56 = floor56
+    N57 = floor57
+    N58 = floor58
+    N59 = floor59
+    N60 = floor60
+ENDDEFINE
+
+DEFINE battery using AmountofColumn AND _floorAmount AND listPerFloorGroup AND AmountOfElevatorPerColumn
+		Columnlist: empty LIST
+		status (offline or online) in this case online
+		callButtonList: EMPTY LIST
+		
+	    SEQUENCE createColumnList USING amountOfColumn
+			INIT iterator TO 1
+			FOR amountofcolumn
+				INIT newColumn TO INTANTIATE Column WITH iterator  AND  _floorAmount  AND _minimumFloor  AND _maximumFloor
+				ADD newCollumn TO columnList
+				INCREMENT iterator
+			ENDFOR
+		ENDSEQUENCE
+enddefine
+
+	SEQUENCE createCallButtonList USING _batteryLowestFloor  AND  _floorAmount  
+			INIT iterator TO _batteryLowestFloor
+			FOR  _floorAmount   
+				IF iterator IS NOT EQUAL TO 0
+					IF iterator IS LESS THAN 1      
+						INIT newCallButton TO INSTANTIATE CallButton WITH down AND iterator
+						add newCallButton TO callButtonList 
+					ENDIF
+					IF iterator IS GREATER THAN 1 
+						INIT newCallButton TO INSTANTIATE CallButton WITH down AND iterator
+						add newCallButton TO callButtonList 
+					ENDIF
+				ENDIF
+				INCREMENT iterator BY 1
+			ENDFOR
+	ENDSEQUENCE
+
+"elevators in each column"
+define columnbasement using id and status AND BackToOrigin
+    id = columnbasement
+    status = status
+    elevatorlist = set to empty list
+    SEQUENCE createElevatorList USING elevator_amount
+        [A1]
+        [A2]
+        [A3]
+    ENDSEQUENCE
+enddefine
+
+define column1 using id and status AND BackToOrigin
+    id = column1
+    status = status
+    elevatorlist = set to empty list
+    SEQUENCE createElevatorList USING elevator_amount
+        [B1]
+        [B2]
+        [B3]
+    ENDSEQUENCE
+enddefine
+
+define column2 using id and status AND BackToOrigin
+    id = column2
+    status = status
+    elevatorlist = set to empty list
+    SEQUENCE createElevatorList USING elevator_amount
+        [C1]
+        [C2]
+        [C3]
+    ENDSEQUENCE
+enddefine
+
+define column3 using id and status AND BackToOrigin
+    id = column3
+    status = status
+    elevatorlist = set to empty list
+    SEQUENCE createElevatorList USING elevator_amount
+        [D1]
+        [D2]
+        [D3]
+    ENDSEQUENCE
+enddefine
+
+"control pannel at floor0"
+sequence control pannel
+    when user presses a button on the pad
+        if user chose #basement
+            print #basement on screen
+        endif
+
+        else if user chose #floor1
+            print #floor1 on screen
+        endif
+
+        else if user chose #floor2
+            print #floor2 on screen
+        endif
+
+        else  user chose #floor3
+        print #floor3 on screen
+        endif
+
+ENDSEQUENCE
+
+define status
+if elevator is moving
+status = in motion
+else if elevator is not moving
+status = idle
+enddefine
+
+sequence maximum weight
+    when elevator reaches 2000 pounds
+    display warning (MAXIMUM WEIGHT REACHED)
+endsequence
+
+define BackToOrigin
+BackToOrigin = floor 0
+enddefine
+
+sequence BackToOrigin
+if elevator status is idle for 10minutes
+    send elevator to BackToOrigin
+endsequence
+
+"doors"
+door_close = true
+door_open = false
+sequence doors
+when BestElevator at floor (selected)
+    then door_open = true door_close = false
+    wait 7 seconds
+    then Door_open = false Door_open = true
+endsequence
+
+sequence doorclose
+when Bestelevator at floor (selected)
+    then door_close = true door_open = false
+endsequence
+
+sequence dooropen
+when Bestelevator at floor (selected)
+    then door_open = true door_close = false
+endsequence
+
+"callElevator"
+Sequence requestElevator Using floor And direction
+    IF button up is pressed
+        obtain #floor and direction
+        closestElevator going up is called to stop by
+
+        ELSE IF button down is pressed
+        obtain #floor and direction
+        closestElevator going down is called to stop by
+    endif
+endsequence
+
+sequence closestElevator using #floor and direction
+    closestElevator = #floor and up or down
+
+endsequence
+
+
+sequence columnbasement using #floors and direction
+    while
+        when A1 is at #floor
+        print #floors on the screen
+        when A2 is at #floor
+        print #floors on the screen
+        when A3 is at #floor
+        print #floors on the screen
+    endwhile
+endsequence
+
+sequence column1 using #floors and direction
+    while
+        when B1 is at #floor
+        print #floors on the screen
+        when B2 is at #floor
+        print #floors on the screen
+        when B3 is at #floor
+        print #floors on the screen
+    endwhile
+endsequence
+
+sequence column2 using #floors and direction
+    while
+        when C1 is at #floor
+        print #floors on the screen
+        when C2 is at #floor
+        print #floors on the screen
+        when C3 is at #floor
+        print #floors on the screen
+    endwhile
+endsequence
+
+sequence column3 using #floors and direction
+    while
+        when D1 is at #floor
+        print #floors on the screen
+        when D2 is at #floor
+        print #floors on the screen
+        when D3 is at #floor
+        print #floors on the screen
+    endwhile
+endsequence
+
+SEQUENCE closestElevatorcolumn1 using column1 and status 
+    when user presses down button 
+        send closestElevator using #floors and direction
+    
+ENDSEQUENCE
+
+SEQUENCE closestElevatorbasement
+    if user press up button
+        choose from columnbasement using #floors and direction
+        bring user to #floor0
+    endif
+ENDSEQUENCE
