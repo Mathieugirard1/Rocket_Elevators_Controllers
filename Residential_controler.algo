@@ -8,49 +8,47 @@ The residential building has:
 -level button(1 for each elevator)
 "
 
-DEFINE #Floor 
-N1 = floor1
-N2 = floor2
-N3 = floor3
-N4 = floor4
-N5 = floor5
-N6 = floor6
-N7 = floor7
-N8 = floor8
-N9 = floor9
-N10 = floor10
+DEFINE #Floor
+    N1 = floor1
+    N2 = floor2
+    N3 = floor3
+    N4 = floor4
+    N5 = floor5
+    N6 = floor6
+    N7 = floor7
+    N8 = floor8
+    N9 = floor9
+    N10 = floor10
 ENDDEFINE
 
 "column"
-DEFINE Column USING id AND status:
+DEFINE Column USING id AND status AND BackToOrigin:
     ID: A,
-    Status: status,
+    Status: online
     ElevatorList: SET to empty List
-
+    BackToOrigin: #floor1
     SEQUENCE createElevatorList USING elevator_amount
         [A1]
         [A2]
     ENDSEQUENCE
 ENDDEFINE
-SET column1 TO INSTANTIATE Column WITH 1 AND online
-SET column1 status TO offline
 
 "doors"
 door_close = true
 door_open = false
-sequence doors
+sequence doors (automatic response)
 when BestElevator at floor (selected)
     then door_open = true door_close = false
     wait 7 seconds
-    then Door_open = false Door_open = true
+    then Door_close = true Door_open = false
 endsequence
 
-sequence doorclose
+sequence doorclose (on the pannel board)
 when Bestelevator at floor (selected)
     then door_close = true door_open = false
 endsequence
 
-sequence dooropen
+sequence dooropen (on the pannel board)
 when Bestelevator at floor (selected)
     then door_open = true door_close = false
 endsequence
@@ -68,22 +66,73 @@ Sequence requestElevator Using floor And direction
 endsequence
 
 sequence closestElevator using #floor and direction
-    closestElevator = #floor and up or down
+    closestElevator = #floor and up AND down AND idle
 
 endsequence
 
 SET destination_floor TO READ the button pressed
 
 sequence elevator_status
-WHEN cage1 is at #floor
-print #floor
-WHEN cage2 is at #floor
-print #floor
+    WHEN A1 is at #floor
+    print #floor on screen
+    WHEN A2 is at #floor
+    print #floor on screen
 endsequence
 
 "floor request button"
-sequence
-if #floor is pressed
-send elevator to #floor.value USING closestElevator
+sequence floorrequest
+    if #floor is pressed
+        send elevator to #floor.value USING closestElevator
+    endif
+endsequence
+
+sequence BackToOrigin
+    if elevator status is idle for 10minutes
+        send elevator to BackToOrigin
+        BackToOrigin = #floor1
+    ENDIF
+endsequence
+
+sequence maximum weight
+    when elevator reaches 2000 pounds
+    display warning (MAXIMUM WEIGHT REACHED)
+endsequence
+
+"test section"
+
+sequence test
+A1 is idle at #floor2
+A2 is idle at #floor6
+if someone is on #floor3 and requests to go up to #floor7
+    A1 has been sent
 endif
+
+sequence test2
+    A1 is idle at #floor10
+    A2 is idle at #floor3
+    if someone is on #floor1 and requests to go up to #floor6
+        A2 has been sent
+    endif
+
+    2 minutes later 
+    if someone is on #floor3 and requests to go up to #floor5
+        A2 has been sent
+    endif
+
+    if someone is on #floor9 and requests to go down to #floor2
+        A1 has been sent
+    endif
+endsequence
+
+sequence test3
+    A1 is idle at #floor10
+    A2 is in motion from #floor3 to #floor6
+    if someone is on #floor3 and requests to go down to #floor2
+        A1 has been sent
+    endif
+    5 minutes later
+    if someone is on #floor10 and requests to go down to #floor3
+        A2 has been sent
+    endif
+
 endsequence

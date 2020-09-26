@@ -90,37 +90,12 @@ DEFINE #Floor 3
     N60 = floor60
 ENDDEFINE
 
-DEFINE battery using AmountofColumn AND _floorAmount AND listPerFloorGroup AND AmountOfElevatorPerColumn
-		Columnlist: empty LIST
-		status (offline or online) in this case online
-		callButtonList: EMPTY LIST
-		
-	    SEQUENCE createColumnList USING amountOfColumn
-			INIT iterator TO 1
-			FOR amountofcolumn
-				INIT newColumn TO INTANTIATE Column WITH iterator  AND  _floorAmount  AND _minimumFloor  AND _maximumFloor
-				ADD newCollumn TO columnList
-				INCREMENT iterator
-			ENDFOR
-		ENDSEQUENCE
+"Battery"
+DEFINE battery using AmountofColumn AND (#basement, #floor1, #floor2, #floor3) AND listPerFloorGroup AND AmountOfElevatorPerColumn
+	Columnlist: columnbasement, column1, column2, column3 LIST
+	status (offline or online) in this case online
+	callButtonList: EMPTY LIST
 enddefine
-
-	SEQUENCE createCallButtonList USING _batteryLowestFloor  AND  _floorAmount  
-			INIT iterator TO _batteryLowestFloor
-			FOR  _floorAmount   
-				IF iterator IS NOT EQUAL TO 0
-					IF iterator IS LESS THAN 1      
-						INIT newCallButton TO INSTANTIATE CallButton WITH down AND iterator
-						add newCallButton TO callButtonList 
-					ENDIF
-					IF iterator IS GREATER THAN 1 
-						INIT newCallButton TO INSTANTIATE CallButton WITH down AND iterator
-						add newCallButton TO callButtonList 
-					ENDIF
-				ENDIF
-				INCREMENT iterator BY 1
-			ENDFOR
-	ENDSEQUENCE
 
 "elevators in each column"
 define columnbasement using id and status AND BackToOrigin
@@ -183,9 +158,8 @@ sequence control pannel
         endif
 
         else  user chose #floor3
-        print #floor3 on screen
+            print #floor3 on screen
         endif
-
 ENDSEQUENCE
 
 define status
@@ -291,9 +265,12 @@ sequence column3 using #floors and direction
     endwhile
 endsequence
 
+"sequence for bringing user to rc by finding the closest elevator to the requested floor"
+
 SEQUENCE closestElevatorcolumn1 using column1 and status 
     when user presses down button 
         send closestElevator using #floors and direction
+        bring user to #floor0
     
 ENDSEQUENCE
 
@@ -303,3 +280,21 @@ SEQUENCE closestElevatorbasement
         bring user to #floor0
     endif
 ENDSEQUENCE
+
+SEQUENCE closestElevatorcolumn2 using column2 and status 
+    when user presses down button 
+        send closestElevator using #floors and direction
+        bring user to #floor0
+    
+ENDSEQUENCE
+
+SEQUENCE closestElevatorcolumn3 using column3 and status 
+    when user presses down button 
+        send closestElevator using #floors and direction
+        bring user to #floor0
+    
+ENDSEQUENCE
+
+
+
+sequence test1
